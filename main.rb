@@ -11,6 +11,7 @@ data = ENV['DATA'] || raise('Missing environment variable DATA: JSON list of emp
 $generation_expression = ENV['GENERATION_EXPRESSION'] || raise('Missing environment variable GENERATION_EXPRESSION: Ruby expression.')
 $mail_send = ENV['MAIL_SEND'] || raise('Missing environment variable MAIL_SEND: Ruby expression.')
 $entries_filename = ENV['ENTRIES'] || raise('Missing environment variable ENTRIES: CSV file name to write/read successful applications to/from.')
+File.open($entries_filename, 'a') {}
 
 def process_employer(name, email, company, website)
   puts 'Processing employer'
@@ -19,6 +20,11 @@ def process_employer(name, email, company, website)
   puts "    Email:\t#{email}"
   puts "    Company:\t#{company}"
   puts "    Website:\t#{website}"
+
+  if CSV.read($entries_filename).any? { |row| row[2] == email }
+    puts '    Mail already exists as entry in entry file. Skipping.'
+    return
+  end
 
   puts '  Research phase'
   puts "    Scraping website (#{website})"
